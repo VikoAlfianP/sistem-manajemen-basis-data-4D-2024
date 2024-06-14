@@ -1,4 +1,4 @@
-CREATE DATABASE db_tokoelektronik;
+`autodidak`CREATE DATABASE db_tokoelektronik;
 USE db_tokoelektronik;
 -- drop database db_tokoelektronik;
 
@@ -142,88 +142,103 @@ INSERT INTO pembayaran (pembayaran_id, transaksi_id, metode_pembayaran, jumlah_p
 (9, 9, 'Tunai', 5000000, '2024-04-09'),
 (10, 10, 'Kartu Debit', 2000000, '2024-04-10');
 
------ soal 1
-CREATE VIEW pesanan_diatas_rata AS
-SELECT
-  p.nama_pembeli,
-  t.total_harga,
-  t.tanggal_transaksi
-FROM transaksi AS t
-JOIN pembeli AS p ON t.pembeli_id = p.pembeli_id
-WHERE t.total_harga > (
-  SELECT AVG(total_harga)
-  FROM transaksi
-);
-SELECT * FROM pesanan_diatas_rata;
+
+-- soal1
+
+CREATE VIEW  soall AS
+SELECT nama_pembeli,total_harga,tanggal_transaksi FROM pembeli
+NATURAL JOIN transaksi;
+
+SELECT * FROM soall
+
+-- soal 2
+CREATE VIEW  soal2 AS
+SELECT nama_barang, stok_barang FROM barang WHERE stok_barang < 10
+SELECT * FROM soal2
 
 
------ soal 2
-CREATE VIEW stobar AS SELECT nama_barang, stok_barang
-FROM barang WHERE stok_barang < 10;
+-- soal 3
+CREATE VIEW soal3 AS
+SELECT * FROM transaksi NATURAL JOIN pembeli 
+SELECT * FROM soal3
 
-SELECT*FROM stobar;
 
------ soal 3
-CREATE VIEW detail_transaksi AS
-SELECT p.nama_pelanggan
-FROM transaksi t
-INNER JOIN pembeli p ON t.id_pembeli = p.id_pembeli;
-
-SELECT*FROM detail_transaksi;
-
----soal 1 storedprocedure
+-- soal1
 DELIMITER //
 
-CREATE PROCEDURE stok_lebih_6()
-BEGIN
-  SELECT
-    *
-  FROM barang
-  WHERE nama_barang LIKE '%e%' AND stok_barang > 6;
+CREATE OR REPLACE  PROCEDURE soall() 
+BEGIN 
+SELECT * FROM barang WHERE nama_barang LIKE '%e%' AND stok_barang > 6 ;
 END //
-
+ 
 DELIMITER ;
- CALL stok_lebih_6;
- 
- ----soal 2
- DELIMITER //
- CREATE PROCEDURE transaksi_tanggal_3_9()
- BEGIN
-	SELECT*FROM transaksi WHERE MONTH (tanggal_transaksi)= 4
-	AND DAY (tanggal_transaksi) BETWEEN 3 AND 9
-	AND jumlah_barang > 1;
-END //
+CALL soall
 
-DELIMITER ;
-
-CALL transaksi_tanggal_3_9;
- 
-
-
- --- soal 4
- 
+-- soal 2
 DELIMITER //
- 
-CREATE PROCEDURE insert_supplier(
- IN nama_supplier VARCHAR NOT NULL(100),
- IN alamat_supplier VARCHAR NOT NULL(225),
- IN telepon_supplier VARCHAR NOT NULL(20)
- )
+
+CREATE OR REPLACE PROCEDURE soal2()
+
 BEGIN
-	INSERT INTO supplier (nama_supplier, alamat_supplier, telepon_supplier)
-  VALUES (supplier, alamat, telepon);
-  
-END //
- 
+SELECT * FROM transaksi WHERE DATE_SUB ('2024-04-06', INTERVAL 5 DAY) AND jumlah_barang > 1 
+GROUP BY tanggal_transaksi;
+END//
+
 DELIMITER;
- 
- SET @nama_supplier = 'andi';
- SET @alamat_supplier ='jalan.jokotole';
- SET @telepon_supplier='085230102983';
- CALL insert_supplier(nama_supplier,@alamat_supplier,@telepon_supplier);
- SELECT @supplier,@alamat,@telepon AS supplier;
- SELECT*FROM insert_supplier;
- 
- 
 
+CALL soal2
+
+-- soal3
+DELIMITER//
+CREATE PROCEDURE  soal3(OUT totalstok INT
+)
+BEGIN 
+SELECT SUM (stok_barang) INTO totalstock FROM barang;
+END//
+
+DELIMITER;
+CALL soal3(@totalstock)
+SELECT totalstok AS jml_total_stok
+
+-- soal4
+DELIMITER//
+CREATE PROCEDURE  soal4(
+
+IN suplier_id INT,
+IN nama_suplier VARCHAR (100),
+IN alamat_suplier VARCHAR(100),
+IN telepon_sumplier VARCHAR(20)
+)
+BEGIN
+INSERT INTO suplier(suplier_id,nama_suplier,alamat_suplier,telepon_suplier) VALUES (suplier_id, nama_suplier, alamat_suplier, telepon_suplier);
+END//
+DELIMITER;
+
+ -- soal5
+DELIMITER//
+CREATE PROCEDURE soal5(
+
+IN pembeli_id INT,
+IN nama_pembeli VARCHAR (100),
+IN alamat_pembeli VARCHAR(100),
+IN telepon_pembeli VARCHAR(100),
+)
+BEGIN
+
+INSERT INTO pembeli(pembeli_id, nama_pembeli ,alamat_pembeli,telepon_pembeli)
+VALUES (pembeli_id,nama_pembeli, alamat_pembeli, telepon_pembeli);
+END//
+
+DELIMITER;
+
+-- soal6
+ DELIMITER//
+ 
+ CREATE PROCEDURE soal6(
+ )
+ BEGIN
+ DROP TABLE gudang;
+ END//
+ DELIMITER;
+ CALL soal6()
  

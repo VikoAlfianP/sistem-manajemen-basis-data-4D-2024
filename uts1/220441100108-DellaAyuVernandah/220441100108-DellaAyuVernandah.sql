@@ -141,89 +141,69 @@ INSERT INTO pembayaran (pembayaran_id, transaksi_id, metode_pembayaran, jumlah_p
 (8, 8, 'Kartu Kredit', 3000000, '2024-04-08'),
 (9, 9, 'Tunai', 5000000, '2024-04-09'),
 (10, 10, 'Kartu Debit', 2000000, '2024-04-10');
+-- VIEW
+-- soal1
+CREATE VIEW  soal1 as
+select nama_pembeli, total_harga, tanggal_transaksi from pembeli
+natural join transaksi;
 
------ soal 1
-CREATE VIEW pesanan_diatas_rata AS
-SELECT
-  p.nama_pembeli,
-  t.total_harga,
-  t.tanggal_transaksi
-FROM transaksi AS t
-JOIN pembeli AS p ON t.pembeli_id = p.pembeli_id
-WHERE t.total_harga > (
-  SELECT AVG(total_harga)
-  FROM transaksi
-);
-SELECT * FROM pesanan_diatas_rata;
+select * from soal1;
 
+-- soal2
+create view soal2 as
+select nama_barang, stok_barang from barang where barang <10;
 
------ soal 2
-CREATE VIEW stobar AS SELECT nama_barang, stok_barang
-FROM barang WHERE stok_barang < 10;
+select * from soal2;
 
-SELECT*FROM stobar;
+-- soal3
+create view soal3 as
+select transaksi_id, tanggal_transaksi, jumlah_barang, total_harga from 
+transaksi as t join pembeli as p on t.pembeli_id = p.pembeli_id 
+join supplier as s on t.supplier_id = s.supplier_id 
+join barang as b on t.barang_id = b.barang_id;
 
------ soal 3
-CREATE VIEW detail_transaksi AS
-SELECT p.nama_pelanggan
-FROM transaksi t
-INNER JOIN pembeli p ON t.id_pembeli = p.id_pembeli;
-
-SELECT*FROM detail_transaksi;
-
----soal 1 storedprocedure
-DELIMITER //
-
-CREATE PROCEDURE stok_lebih_6()
-BEGIN
-  SELECT
-    *
-  FROM barang
-  WHERE nama_barang LIKE '%e%' AND stok_barang > 6;
-END //
-
-DELIMITER ;
- CALL stok_lebih_6;
  
- ----soal 2
+ -- strored procedeure
+ -- soal1
  DELIMITER //
- CREATE PROCEDURE transaksi_tanggal_3_9()
+ 
+ CREATE PROCEDURE barang_dengan_e_dan_stok_lebih_6()
  BEGIN
-	SELECT*FROM transaksi WHERE MONTH (tanggal_transaksi)= 4
-	AND DAY (tanggal_transaksi) BETWEEN 3 AND 9
-	AND jumlah_barang > 1;
-END //
+ SELECT * FROM barang where nama_barang LIKE '%e%' AND stok_barang >6;
+ END //
+ 
+ DELIMITER ;
+ 
+ -- Soal2
+ 
+ DELIMITER //
+ Create procedure transaksi_april_3hingga9_lebih_1_barang()
+ BEGIN
+ SELECT * FROM transaksi WHERE month(tanggal_transaksi)=4 and day(tanggal_transaksi)
+ between 3 and 9
+ and jumlah_barang > 1;
+ END //
+ 
+ DELIMITER ;
+ 
+ -- Soal6
+ 
+ DELIMITER //
+ 
+ Create procedure grt_transaction_details() 
+ BEGIN
+ SELECT t.*, p.nama_pelanggan FROM transaksi t INNER JOIN 
+ pembeli p on t.id_pembeli - p.id_pembeli;
+ END //
+ 
+ DELIMITER ;
+ 
+ -- 5
+ DELIMITER //
+  
+ CREATE VIEW detail_transaksi AS
+ SELECT t.*, p.nama_pelanggan FROM transaksi t INNER JOIN pembeli p ON t.id_pembeli = p.id_prmbeli ;
 
+END //
 DELIMITER ;
 
-CALL transaksi_tanggal_3_9;
- 
-
-
- --- soal 4
- 
-DELIMITER //
- 
-CREATE PROCEDURE insert_supplier(
- IN nama_supplier VARCHAR NOT NULL(100),
- IN alamat_supplier VARCHAR NOT NULL(225),
- IN telepon_supplier VARCHAR NOT NULL(20)
- )
-BEGIN
-	INSERT INTO supplier (nama_supplier, alamat_supplier, telepon_supplier)
-  VALUES (supplier, alamat, telepon);
-  
-END //
- 
-DELIMITER;
- 
- SET @nama_supplier = 'andi';
- SET @alamat_supplier ='jalan.jokotole';
- SET @telepon_supplier='085230102983';
- CALL insert_supplier(nama_supplier,@alamat_supplier,@telepon_supplier);
- SELECT @supplier,@alamat,@telepon AS supplier;
- SELECT*FROM insert_supplier;
- 
- 
-
- 

@@ -142,88 +142,60 @@ INSERT INTO pembayaran (pembayaran_id, transaksi_id, metode_pembayaran, jumlah_p
 (9, 9, 'Tunai', 5000000, '2024-04-09'),
 (10, 10, 'Kartu Debit', 2000000, '2024-04-10');
 
------ soal 1
+-- 1 --
 CREATE VIEW pesanan_diatas_rata AS
-SELECT
-  p.nama_pembeli,
-  t.total_harga,
-  t.tanggal_transaksi
+SELECT p.nama_pembeli, t.total_harga, t.tanggal_transaksi
 FROM transaksi AS t
 JOIN pembeli AS p ON t.pembeli_id = p.pembeli_id
 WHERE t.total_harga > (
-  SELECT AVG(total_harga)
-  FROM transaksi
+	SELECT AVG(total_harga)
+    FROM transaksi
 );
-SELECT * FROM pesanan_diatas_rata;
 
+-- 2 --
+CREATE VIEW barang_stok_kurang AS
+SELECT b.nama_barang, b.stok_barang
+FROM barang AS b
+WHERE b.stok_barang < 10;
 
------ soal 2
-CREATE VIEW stobar AS SELECT nama_barang, stok_barang
-FROM barang WHERE stok_barang < 10;
+-- 3 --
+CREATE VIEW transaksi_detai AS
+SELECT t.transaksi_id, p.nama_pembeli, s.nama_supplier, b.nama_barang, t.jumlah_barang, t.total_harga, t.tanggal_transaksi
+FROM transaksi AS t
+JOIN pembeli AS p ON t.pembeli_id = p.pembeli_id
+JOIN supplier AS s ON t.supplier_id = s.supplier_id
+JOIN barang AS b ON t.barang_id = p.barang_id;
 
-SELECT*FROM stobar;
-
------ soal 3
-CREATE VIEW detail_transaksi AS
-SELECT p.nama_pelanggan
-FROM transaksi t
-INNER JOIN pembeli p ON t.id_pembeli = p.id_pembeli;
-
-SELECT*FROM detail_transaksi;
-
----soal 1 storedprocedure
+-- S1 --
 DELIMITER //
-
-CREATE PROCEDURE stok_lebih_6()
-BEGIN
-  SELECT
-    *
-  FROM barang
-  WHERE nama_barang LIKE '%e%' AND stok_barang > 6;
-END //
-
-DELIMITER ;
- CALL stok_lebih_6;
- 
- ----soal 2
- DELIMITER //
- CREATE PROCEDURE transaksi_tanggal_3_9()
- BEGIN
-	SELECT*FROM transaksi WHERE MONTH (tanggal_transaksi)= 4
-	AND DAY (tanggal_transaksi) BETWEEN 3 AND 9
-	AND jumlah_barang > 1;
-END //
-
+CREATE PROCEDURE barang_lebih_6()
+BEGIN 
+	SELECT * FROM barang 
+    WHERE nama_barang LIKE '%e%' AND stok_barang > 6;
+END//
 DELIMITER ;
 
-CALL transaksi_tanggal_3_9;
- 
+CALL barang_lebih_6();
 
-
- --- soal 4
- 
+-- S6 --
 DELIMITER //
- 
-CREATE PROCEDURE insert_supplier(
- IN nama_supplier VARCHAR NOT NULL(100),
- IN alamat_supplier VARCHAR NOT NULL(225),
- IN telepon_supplier VARCHAR NOT NULL(20)
- )
+CREATE PROCEDURE hapus_tabel ()
 BEGIN
-	INSERT INTO supplier (nama_supplier, alamat_supplier, telepon_supplier)
-  VALUES (supplier, alamat, telepon);
-  
+	DROP TABLES supplier OR, penjual OR, barang OR , gudang OR, transaksi OR, pembeli OR, pembayaran
 END //
- 
-DELIMITER;
- 
- SET @nama_supplier = 'andi';
- SET @alamat_supplier ='jalan.jokotole';
- SET @telepon_supplier='085230102983';
- CALL insert_supplier(nama_supplier,@alamat_supplier,@telepon_supplier);
- SELECT @supplier,@alamat,@telepon AS supplier;
- SELECT*FROM insert_supplier;
- 
- 
+DELIMITER ;
 
- 
+CALL hapus_tabel ('penjual');
+
+-- S4 --
+DELIMITER //
+CREATE PROCEDURE add_supplier()
+BEGIN 
+	SELECT * FROM barang 
+    WHERE nama_barang LIKE '%e%' AND stok_barang > 6;
+END//
+DELIMITER ;
+
+CALL barang_lebih_6();
+
+

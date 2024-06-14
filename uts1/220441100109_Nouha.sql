@@ -142,88 +142,37 @@ INSERT INTO pembayaran (pembayaran_id, transaksi_id, metode_pembayaran, jumlah_p
 (9, 9, 'Tunai', 5000000, '2024-04-09'),
 (10, 10, 'Kartu Debit', 2000000, '2024-04-10');
 
------ soal 1
-CREATE VIEW pesanan_diatas_rata AS
-SELECT
-  p.nama_pembeli,
-  t.total_harga,
-  t.tanggal_transaksi
-FROM transaksi AS t
-JOIN pembeli AS p ON t.pembeli_id = p.pembeli_id
-WHERE t.total_harga > (
-  SELECT AVG(total_harga)
-  FROM transaksi
-);
-SELECT * FROM pesanan_diatas_rata;
+CREATE VIEW view_detail_penjualan AS
+SELECT 
+    pr.nama_pelanggan,
+    pr.total AS total,
+    dp.tanggal AS tanggal_pesanan,
+    (pr.total_harga * dp.jumlah_barang) 
+FROM pembeli pr
+JOIN transaksi dp ON pr.pembeli_id = dp.pembeli_id;
+
+select * from view_detail_penjualan;
 
 
------ soal 2
-CREATE VIEW stobar AS SELECT nama_barang, stok_barang
-FROM barang WHERE stok_barang < 10;
 
-SELECT*FROM stobar;
+CREATE VIEW view_produk_stok_kurang_dari_5 AS
+SELECT 
+    nama_barang,
+    stok_barang
+FROM barang
+WHERE stok_barang < 10;
 
------ soal 3
-CREATE VIEW detail_transaksi AS
-SELECT p.nama_pelanggan
-FROM transaksi t
-INNER JOIN pembeli p ON t.id_pembeli = p.id_pembeli;
-
-SELECT*FROM detail_transaksi;
-
----soal 1 storedprocedure
-DELIMITER //
-
-CREATE PROCEDURE stok_lebih_6()
-BEGIN
-  SELECT
-    *
-  FROM barang
-  WHERE nama_barang LIKE '%e%' AND stok_barang > 6;
-END //
-
-DELIMITER ;
- CALL stok_lebih_6;
- 
- ----soal 2
- DELIMITER //
- CREATE PROCEDURE transaksi_tanggal_3_9()
- BEGIN
-	SELECT*FROM transaksi WHERE MONTH (tanggal_transaksi)= 4
-	AND DAY (tanggal_transaksi) BETWEEN 3 AND 9
-	AND jumlah_barang > 1;
-END //
-
-DELIMITER ;
-
-CALL transaksi_tanggal_3_9;
- 
+delimiter//
+create procedure input_supplier(
+	in supplier_id ,
+    in nama_supplier,
+    in alamat_supplier,
+    in telepon_supplier,
+    );
+begin
+insert into supplier_id, 
+//end
 
 
- --- soal 4
- 
-DELIMITER //
- 
-CREATE PROCEDURE insert_supplier(
- IN nama_supplier VARCHAR NOT NULL(100),
- IN alamat_supplier VARCHAR NOT NULL(225),
- IN telepon_supplier VARCHAR NOT NULL(20)
- )
-BEGIN
-	INSERT INTO supplier (nama_supplier, alamat_supplier, telepon_supplier)
-  VALUES (supplier, alamat, telepon);
-  
-END //
- 
-DELIMITER;
- 
- SET @nama_supplier = 'andi';
- SET @alamat_supplier ='jalan.jokotole';
- SET @telepon_supplier='085230102983';
- CALL insert_supplier(nama_supplier,@alamat_supplier,@telepon_supplier);
- SELECT @supplier,@alamat,@telepon AS supplier;
- SELECT*FROM insert_supplier;
- 
- 
 
- 
+
